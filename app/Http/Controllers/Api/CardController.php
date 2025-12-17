@@ -10,16 +10,35 @@ class CardController extends Controller
 {
     public function index()
     {
-        return response()->json(
-            auth()->user()->cards()->latest()->get()
-        );
+        $user = auth()->user();
+
+        $cards = Card::with('user')
+            ->latest()
+            ->get()
+            ->map(function ($card) use ($user) {
+                return [
+                    'id' => $card->id,
+                    'title' => $card->title,
+                    'brand' => $card->brand,
+                    'model' => $card->model,
+                    'year' => $card->year,
+                    'category' => $card->category,
+                    'description' => $card->description,
+                    'horsepower' => $card->horsepower,
+                    'price' => $card->price,
+                    'user' => $card->user,
+                    'is_friend' => $user->isFriendWith($card->user),
+                ];
+            });
+
+        return response()->json($cards);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'category' => 'required|string|in:' . implode(',', array_keys(\App\Models\Card::CATEGORIES)),
+            'category' => 'required|string|in:' . implode(',', array_keys(Card::CATEGORIES)),
             'description' => 'required|string',
             'brand' => 'required|string|max:100',
             'model' => 'required|string|max:100',
@@ -40,7 +59,16 @@ class CardController extends Controller
             403
         );
 
-        $card->update($request->all());
+        $card->update($request->only([
+            'title',
+            'category',
+            'description',
+            'brand',
+            'model',
+            'year',
+            'horsepower',
+            'price',
+        ]));
 
         return response()->json($card);
     }

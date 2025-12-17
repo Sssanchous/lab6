@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\CardController;
-use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Api\CardController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\FriendController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
+
     Route::get('/me', fn () => auth()->user());
 
     Route::get('/cards', [CardController::class, 'index']);
