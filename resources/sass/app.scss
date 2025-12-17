@@ -1,0 +1,264 @@
+// Цветовые переменные
+$primary: #4a6fa5;
+$secondary: #6c757d;
+$success: #28a745;
+$danger: #dc3545;
+$warning: #ffc107;
+$info: #17a2b8;
+$light: #f8f9fa;
+$dark: #343a40;
+
+$light-blue: #e8f4fd;
+$medium-blue: #d4e7fa;
+$dark-blue: #4a6fa5;
+$text-gray: #5a6c7d;
+$border-gray: #dee2e6;
+
+// Подключаем Bootstrap с кастомными переменными
+@use "sass:color";
+@use "~bootstrap/scss/bootstrap" with (
+  $primary: $primary,
+  $secondary: $secondary,
+  $success: $success,
+  $danger: $danger,
+  $warning: $warning,
+  $info: $info,
+  $light: $light,
+  $dark: $dark
+);
+
+// Защита от уменьшения текста при zoom < 100%
+* {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+// Общие стили тела
+body {
+  background-color: $light-blue;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: $text-gray;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+// Навигация
+.navbar {
+  background-color: $dark-blue !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .navbar-brand,
+  .navbar-nav .nav-link {
+    color: white !important;
+  }
+
+  .navbar-nav .nav-link:hover {
+    opacity: 0.9;
+  }
+}
+
+// Кнопки
+.btn-primary {
+  background-color: $dark-blue !important;
+  border-color: $dark-blue !important;
+
+  &:hover {
+    background-color: color.adjust($dark-blue, $lightness: -10%) !important;
+    border-color: color.adjust($dark-blue, $lightness: -10%) !important;
+  }
+}
+
+// Карточки каталога
+.card {
+  background: white;
+  border: 1px solid $border-gray;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  height: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: $dark-blue;
+  }
+}
+
+.card-img-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+
+  .card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+}
+
+.card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.card-title {
+  color: $dark;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.card-text {
+  color: $text-gray;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+// Формы
+.form-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid $border-gray;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  .card-header {
+    background-color: $dark-blue;
+    color: white;
+    padding: 1.25rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: $text-gray;
+  }
+}
+
+.card-header-custom {
+  background-color: $dark-blue !important;
+  color: white !important;
+  padding: 1.25rem;
+  border-radius: 10px 10px 0 0;
+}
+
+// Страница деталей
+.detail-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid $border-gray;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  .detail-image {
+    height: 350px;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .detail-body {
+    padding: 1.5rem;
+  }
+
+  .detail-title {
+    color: $dark;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-subtitle {
+    color: $text-gray;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .spec-item {
+      background: $light-blue;
+      padding: 0.75rem;
+      border-radius: 8px;
+
+      .spec-label {
+        font-size: 0.8rem;
+        color: $text-gray;
+        margin-bottom: 0.25rem;
+      }
+
+      .spec-value {
+        font-weight: 600;
+        color: $dark;
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  .detail-section {
+    margin-bottom: 1.5rem;
+
+    h5 {
+      color: $dark;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Футер (синий)
+footer {
+  background-color: $dark-blue;
+  color: white;
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+
+  a {
+    color: white;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .detail-image {
+    height: 250px;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-img-container {
+    height: 180px;
+  }
+
+  .detail-image {
+    height: 200px;
+  }
+
+  .detail-specs {
+    grid-template-columns: 1fr;
+  }
+}

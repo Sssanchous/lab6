@@ -1,0 +1,7 @@
+*.log
+public/images
+node_modules/
+bootstrap/cache/*
+/vendor
+.env
+.idea
