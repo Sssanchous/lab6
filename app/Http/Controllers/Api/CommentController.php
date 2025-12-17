@@ -11,19 +11,23 @@ class CommentController extends Controller
 {
     public function index(Card $card)
     {
-        $user = auth()->user();
-
         $comments = $card->comments()
-            ->with(['user', 'card'])
+            ->with(['user', 'card.user'])
+            ->latest()
             ->get()
-            ->map(function ($comment) use ($user) {
+            ->map(function ($comment) {
+                $isFriend = auth()->user()
+                    ->acceptedFriends()
+                    ->where('users.id', $comment->user_id)
+                    ->exists();
+
                 return [
                     'id' => $comment->id,
                     'content' => $comment->content,
                     'created_at' => $comment->created_at,
                     'user' => $comment->user,
                     'card' => $comment->card,
-                    'is_friend' => $user->isFriendWith($comment->card->user),
+                    'is_friend' => $isFriend,
                 ];
             });
 
@@ -32,12 +36,12 @@ class CommentController extends Controller
 
     public function store(Request $request, Card $card)
     {
-        $request->validate([
+        $validated = $request->validate([
             'content' => 'required|string',
         ]);
 
         $comment = $card->comments()->create([
-            'content' => $request->content,
+            'content' => $validated['content'],
             'user_id' => auth()->id(),
         ]);
 
@@ -51,9 +55,11 @@ class CommentController extends Controller
             403
         );
 
-        $comment->update([
-            'content' => $request->content,
+        $validated = $request->validate([
+            'content' => 'required|string',
         ]);
+
+        $comment->update($validated);
 
         return response()->json($comment);
     }
