@@ -1,0 +1,1 @@
+<?php /**PATH C:\Users\alex1\Downloads\lab6\resources\views/layouts/navigation.blade.php ENDPATH**/ ?>

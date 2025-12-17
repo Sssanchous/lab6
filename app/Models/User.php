@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -55,15 +56,12 @@ class User extends Authenticatable
             ->wherePivot('status', 'accepted')
             ->whereExists(function ($q) {
                 $q->selectRaw(1)
-                ->from('user_friends as uf2')
-                ->whereColumn('uf2.user_id', 'user_friends.friend_id')
-                ->whereColumn('uf2.friend_id', 'user_friends.user_id')
-                ->where('uf2.status', 'accepted');
+                    ->from('user_friends as uf2')
+                    ->whereColumn('uf2.user_id', 'user_friends.friend_id')
+                    ->whereColumn('uf2.friend_id', 'user_friends.user_id')
+                    ->where('uf2.status', 'accepted');
             });
     }
-
-
-
 
     public function incomingFriendRequests(): BelongsToMany
     {

@@ -8,14 +8,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('user_friends', function (Blueprint $table) {
-            $table->string('status')->default('pending');
         });
     }
 
     public function down(): void
     {
         Schema::table('user_friends', function (Blueprint $table) {
-            $table->dropColumn('status');
         });
     }
 };

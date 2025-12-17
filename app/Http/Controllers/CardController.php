@@ -9,9 +9,6 @@ use Illuminate\Support\Str;
 
 class CardController extends Controller
 {
-    // ======================================================
-    // МОИ КАРТОЧКИ
-    // ======================================================
     public function index()
     {
         $cards = auth()->user()
@@ -19,30 +16,30 @@ class CardController extends Controller
             ->latest()
             ->get();
 
+        if (request()->wantsJson()) {
+            return response()->json($cards);
+        }
+
         return view('cards.index', [
             'cards' => $cards,
-            'mode'  => 'mine',
+            'mode' => 'mine',
         ]);
     }
 
-    // ======================================================
-    // ВСЕ КАРТОЧКИ
-    // ======================================================
     public function all()
     {
-        $cards = Card::with('user')
-            ->latest()
-            ->get();
+        $cards = Card::with('user')->latest()->get();
+
+        if (request()->wantsJson()) {
+            return response()->json($cards);
+        }
 
         return view('cards.index', [
             'cards' => $cards,
-            'mode'  => 'all',
+            'mode' => 'all',
         ]);
     }
 
-    // ======================================================
-    // КАРТОЧКИ ДРУЗЕЙ (ЛЕНТА)
-    // ======================================================
     public function friendsFeed()
     {
         $friendIds = auth()->user()
@@ -54,38 +51,38 @@ class CardController extends Controller
             ->latest()
             ->get();
 
+        if (request()->wantsJson()) {
+            return response()->json($cards);
+        }
+
         return view('cards.index', [
             'cards' => $cards,
-            'mode'  => 'friends',
+            'mode' => 'friends',
         ]);
     }
 
-
-
-    // ======================================================
     public function create()
     {
         return view('cards.form', [
-            'card'       => new Card(),
-            'isEdit'     => false,
+            'card' => new Card(),
+            'isEdit' => false,
             'categories' => Card::CATEGORIES,
         ]);
     }
 
-    // ======================================================
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'category'         => 'required|string|in:' . implode(',', array_keys(Card::CATEGORIES)),
-            'description'      => 'required|string',
-            'image'            => 'required|image|max:51200',
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|in:' . implode(',', array_keys(Card::CATEGORIES)),
+            'description' => 'required|string',
+            'image' => request()->wantsJson() ? 'nullable|image|max:51200' : 'required|image|max:51200',
             'fun_fact_content' => 'nullable|string',
-            'brand'            => 'required|string|max:100',
-            'model'            => 'required|string|max:100',
-            'year'             => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'horsepower'       => 'required|integer|min:1',
-            'price'            => 'nullable|numeric|min:0',
+            'brand' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'horsepower' => 'required|integer|min:1',
+            'price' => 'nullable|numeric|min:0',
         ]);
 
         if ($request->hasFile('image')) {
@@ -103,24 +100,26 @@ class CardController extends Controller
             $validated['image_path'] = 'images/' . $filename;
         }
 
-        auth()->user()->cards()->create($validated);
+        $card = auth()->user()->cards()->create($validated);
 
-        return redirect()
-            ->route('cards.index')
-            ->with('success', 'Машина успешно добавлена!');
+        if (request()->wantsJson()) {
+            return response()->json($card, 201);
+        }
+
+        return redirect()->route('cards.index')->with('success', 'Машина успешно добавлена!');
     }
 
-    // ======================================================
-    // ПРОСМОТР КАРТОЧКИ (ДОСТУПЕН ВСЕМ АВТОРИЗОВАННЫМ)
-    // ======================================================
     public function show(Card $card)
     {
         $card->load(['user', 'comments.user']);
 
+        if (request()->wantsJson()) {
+            return response()->json($card);
+        }
+
         return view('cards.show', compact('card'));
     }
 
-    // ======================================================
     public function edit(Card $card)
     {
         if (!auth()->user()->is_admin && $card->user_id !== auth()->id()) {
@@ -128,13 +127,12 @@ class CardController extends Controller
         }
 
         return view('cards.form', [
-            'card'       => $card,
-            'isEdit'     => true,
+            'card' => $card,
+            'isEdit' => true,
             'categories' => Card::CATEGORIES,
         ]);
     }
 
-    // ======================================================
     public function update(Request $request, Card $card)
     {
         if (!auth()->user()->is_admin && $card->user_id !== auth()->id()) {
@@ -142,16 +140,16 @@ class CardController extends Controller
         }
 
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'category'         => 'required|string|in:' . implode(',', array_keys(Card::CATEGORIES)),
-            'description'      => 'required|string',
-            'image'            => 'nullable|image|max:51200',
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|in:' . implode(',', array_keys(Card::CATEGORIES)),
+            'description' => 'required|string',
+            'image' => 'nullable|image|max:51200',
             'fun_fact_content' => 'nullable|string',
-            'brand'            => 'required|string|max:100',
-            'model'            => 'required|string|max:100',
-            'year'             => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'horsepower'       => 'required|integer|min:1',
-            'price'            => 'nullable|numeric|min:0',
+            'brand' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'horsepower' => 'required|integer|min:1',
+            'price' => 'nullable|numeric|min:0',
         ]);
 
         if ($request->hasFile('image')) {
@@ -170,12 +168,13 @@ class CardController extends Controller
 
         $card->update($validated);
 
-        return redirect()
-            ->route('cards.index')
-            ->with('success', 'Машина успешно обновлена!');
+        if (request()->wantsJson()) {
+            return response()->json($card);
+        }
+
+        return redirect()->route('cards.index')->with('success', 'Машина успешно обновлена!');
     }
 
-    // ======================================================
     public function destroy(Card $card)
     {
         if (!auth()->user()->is_admin && $card->user_id !== auth()->id()) {
@@ -184,21 +183,18 @@ class CardController extends Controller
 
         $card->delete();
 
-        return redirect()
-            ->route('cards.index')
-            ->with('success', 'Машина перемещена в корзину.');
+        if (request()->wantsJson()) {
+            return response()->json(['message' => 'deleted']);
+        }
+
+        return redirect()->route('cards.index')->with('success', 'Машина перемещена в корзину.');
     }
 
-    // ======================================================
-    // КОРЗИНА (ТОЛЬКО АДМИН)
-    // ======================================================
     public function trash()
     {
         abort_unless(auth()->user()->is_admin, 403);
 
-        $cards = Card::onlyTrashed()
-            ->with('user')
-            ->get();
+        $cards = Card::onlyTrashed()->with('user')->get();
 
         return view('cards.trash', compact('cards'));
     }
@@ -207,9 +203,7 @@ class CardController extends Controller
     {
         abort_unless(auth()->user()->is_admin, 403);
 
-        Card::onlyTrashed()
-            ->findOrFail($id)
-            ->restore();
+        Card::onlyTrashed()->findOrFail($id)->restore();
 
         return redirect()->route('cards.index');
     }
