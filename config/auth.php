@@ -40,13 +40,6 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
-        // ВАЖНО: Добавьте API guard для Passport
-        'api' => [
-            'driver' => 'passport',
-            'provider' => 'users',
-            'hash' => false,
-        ],
     ],
 
     /*

@@ -35,14 +35,10 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Определяем, является ли пользователь первым
-        $isFirstUser = User::count() === 0;
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'is_admin' => $isFirstUser, // ← первый пользователь — админ
         ]);
 
         event(new Registered($user));

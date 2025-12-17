@@ -8,23 +8,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use Laravel\Passport\Client;
-use Laravel\Passport\ClientRepository;
 
 class ProfileController extends Controller
 {
+    /**
+     * Display the user's profile form.
+     */
     public function edit(Request $request): View
     {
-        $personalClient = Client::where('personal_access_client', true)->first();
-        $tokens = $request->user()->tokens()->orderBy('created_at', 'desc')->get();
-
         return view('profile.edit', [
             'user' => $request->user(),
-            'personalClient' => $personalClient,
-            'tokens' => $tokens,
         ]);
     }
 
+    /**
+     * Update the user's profile information.
+     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
@@ -35,9 +34,12 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('status', 'profile_updated');
     }
 
+    /**
+     * Delete the user's account.
+     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
@@ -45,6 +47,7 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
         Auth::logout();
 
         $user->delete();
@@ -54,23 +57,4 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
-
-    public function createToken(Request $request): RedirectResponse
-    {
-        $request->validate(['token_name' => 'required|string|max:255']);
-
-        $token = $request->user()->createToken($request->token_name);
-
-        return redirect()->route('profile.edit')
-            ->with('token_plain', $token->plainTextToken);
-    }
-
-    public function revokeToken(Request $request, $tokenId): RedirectResponse
-    {
-        $request->user()->tokens()->where('id', $tokenId)->delete();
-
-        return redirect()->route('profile.edit');
-    }
-
-    
 }

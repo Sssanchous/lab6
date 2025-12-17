@@ -41,7 +41,7 @@ class CardController extends Controller
     }
 
     // ======================================================
-    // КАРТОЧКИ ДРУЗЕЙ
+    // КАРТОЧКИ ДРУЗЕЙ (ЛЕНТА)
     // ======================================================
     public function friendsFeed()
     {
@@ -60,8 +60,8 @@ class CardController extends Controller
         ]);
     }
 
-    // ======================================================
-    // СОЗДАНИЕ
+
+
     // ======================================================
     public function create()
     {
@@ -72,8 +72,6 @@ class CardController extends Controller
         ]);
     }
 
-    // ======================================================
-    // СОХРАНЕНИЕ
     // ======================================================
     public function store(Request $request)
     {
@@ -92,7 +90,6 @@ class CardController extends Controller
 
         if ($request->hasFile('image')) {
             $path = public_path('images');
-
             if (!File::exists($path)) {
                 File::makeDirectory($path, 0755, true);
             }
@@ -114,7 +111,7 @@ class CardController extends Controller
     }
 
     // ======================================================
-    // ПРОСМОТР
+    // ПРОСМОТР КАРТОЧКИ (ДОСТУПЕН ВСЕМ АВТОРИЗОВАННЫМ)
     // ======================================================
     public function show(Card $card)
     {
@@ -124,22 +121,19 @@ class CardController extends Controller
     }
 
     // ======================================================
-    // РЕДАКТИРОВАНИЕ
-    // ======================================================
     public function edit(Card $card)
     {
         if (!auth()->user()->is_admin && $card->user_id !== auth()->id()) {
             abort(403);
         }
-return view('cards.form', [
+
+        return view('cards.form', [
             'card'       => $card,
             'isEdit'     => true,
             'categories' => Card::CATEGORIES,
         ]);
     }
 
-    // ======================================================
-    // ОБНОВЛЕНИЕ
     // ======================================================
     public function update(Request $request, Card $card)
     {
@@ -181,8 +175,6 @@ return view('cards.form', [
             ->with('success', 'Машина успешно обновлена!');
     }
 
-    // ======================================================
-    // УДАЛЕНИЕ (SOFT DELETE)
     // ======================================================
     public function destroy(Card $card)
     {
